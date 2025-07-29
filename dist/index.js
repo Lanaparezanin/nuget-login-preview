@@ -27563,7 +27563,7 @@ const https = __nccwpck_require__(5687);
 
 async function run() {
   try {
-    const user = core.getInput('user', { required: true });
+    const username = core.getInput('user', { required: true });
     const source = core.getInput('source', { required: true });
     const tokenServiceUrl = core.getInput('token-service-url', { required: true });
     const audience = core.getInput('audience') || 'api.nuget.org';
