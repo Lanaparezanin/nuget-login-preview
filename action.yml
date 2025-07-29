@@ -1,0 +1,25 @@
+name: 'NuGet Login'
+description: 'Log in to NuGet using GitHub OIDC and get a short-lived API key'
+
+inputs:
+  user:
+    description: 'NuGet username'
+    required: true
+  source:
+    description: 'NuGet server source URL (v3 API)'
+    required: true
+  token-service-url:
+    description: 'Token exchange endpoint URL'
+    required: true
+  audience:
+    description: 'OIDC audience to request'
+    required: false
+    default: 'api.nuget.org'
+
+outputs:
+  NUGET_API_KEY:
+    description: 'Short-lived NuGet API key'
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
