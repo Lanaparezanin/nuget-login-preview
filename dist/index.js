@@ -27574,7 +27574,7 @@ async function run() {
     //const oidcToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
     //const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];// + '&audience=' + encodeURIComponent(audience);
     const tokenRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] + '&audience=' + encodeURIComponent(audience);
-    const tokenResponse = await httpm.getJson(tokenRequestUrl);
+    const tokenResponse = await httpm.HttpClient.getJson(tokenRequestUrl);
     const oidcToken = tokenResponse.result.value;
 
 
