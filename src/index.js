@@ -34,13 +34,18 @@ async function run() {
       })
     });*/
 
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${oidcToken}`
+    };
+
     const body = JSON.stringify({
       username: username,
       tokenType: 'ApiKey'
     });
 
     // Exchange OIDC token for NuGet API key
-    const apiKeyResponse = await httpPostJson(tokenServiceUrl, oidcToken.value, body);
+    const apiKeyResponse = await httpPostJson(tokenServiceUrl, oidcToken.value, body, headers);
     if (!apiKeyResponse.apiKey) {
       throw new Error(`Failed to get API key: ${JSON.stringify(apiKeyResponse)}`);
     }
