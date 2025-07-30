@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const https = require('https');
+const httpm = require('@actions/http-client');
 
 async function run() {
   try {
