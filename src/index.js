@@ -25,7 +25,7 @@ async function run() {
     const http = new httpm.HttpClient();
 
     // Usually the exchange expects the token in the body or header; confirm with your team
-    const body = JSON.stringify({ token: oidcToken, audience: 'nuget.org' });
+    const body = JSON.stringify({ username: username, tokenType: 'ApiKey' });
 
     const headers = {
       'Content-Type': 'application/json',
