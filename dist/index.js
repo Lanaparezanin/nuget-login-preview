@@ -27577,6 +27577,8 @@ async function run() {
     if (!oidcToken || !oidcRequestUrl) {
       throw new Error('Missing required environment variables for OIDC token request.');
     }
+    core.info(`🌐 OIDC Request URL: ${oidcRequestUrl}`);
+    core.info(`🪪 OIDC Token (first 20 chars): ${oidcToken.slice(0, 20)}...`);
 
     core.info(`Using token service endpoint: ${tokenServiceUrl}`);
 
@@ -27591,13 +27593,18 @@ async function run() {
       'Authorization': `Bearer ${oidcToken}`
     };
 
+    core.info(`📤 Sending request to token service with body: ${body}`);
+    core.info(`📨 Headers: ${JSON.stringify(headers, null, 2)}`);
+
     const response = await http.post(tokenServiceUrl, body, headers);
+    core.info(`📥 Token service response code: ${response.message.statusCode}`);
 
     if (response.message.statusCode !== 200) {
       throw new Error(`Token exchange failed with status code ${response.message.statusCode}`);
     }
 
     const responseBody = await response.readBody();
+    core.info(`📦 Token service response body: ${responseBody}`);
     const data = JSON.parse(responseBody);
 
     if (!data.apiKey) {
