@@ -27572,7 +27572,7 @@ async function run() {
     // Get GitHub OIDC token
     // Get the OIDC token from environment (GitHub sets this)
     const oidcToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
-    const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];
+    const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] + '&audience=' + encodeURIComponent(audience);
 
     if (!oidcToken || !oidcRequestUrl) {
       throw new Error('Missing required environment variables for OIDC token request.');
