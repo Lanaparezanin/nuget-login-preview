@@ -12,8 +12,12 @@ async function run() {
 
     // Get GitHub OIDC token
     // Get the OIDC token from environment (GitHub sets this)
-    const oidcToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
-    const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] + '&audience=' + encodeURIComponent(audience);
+    //const oidcToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
+    //const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];// + '&audience=' + encodeURIComponent(audience);
+    const tokenRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] + '&audience=' + encodeURIComponent(audience);
+    const tokenResponse = await http.getJson(tokenRequestUrl);
+    const oidcToken = tokenResponse.result.value;
+
 
     if (!oidcToken || !oidcRequestUrl) {
       throw new Error('Missing required environment variables for OIDC token request.');
@@ -26,7 +30,7 @@ async function run() {
     // Exchange the OIDC token for the NuGet API key
     const http = new httpm.HttpClient();
 
-    // Usually the exchange expects the token in the body or header; confirm with your team
+    // The exchange expects the token in the body or header
     const body = JSON.stringify({ username: username, tokenType: 'ApiKey' });
 
     const headers = {
