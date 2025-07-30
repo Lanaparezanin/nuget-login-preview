@@ -27564,34 +27564,31 @@ const httpm = __nccwpck_require__(6255);
 
 async function run() {
   try {
-    const username = core.getInput('user', { required: true });
+const username = core.getInput('user', { required: true });
     const source = core.getInput('source', { required: true });
     const tokenServiceUrl = core.getInput('token-service-url', { required: true });
     const audience = core.getInput('audience') || 'api.nuget.org';
 
-    // Get GitHub OIDC token
-    // Get the OIDC token from environment (GitHub sets this)
-    //const oidcToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
-    //const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];// + '&audience=' + encodeURIComponent(audience);
-    const tokenRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] + '&audience=' + encodeURIComponent(audience);
-    const tokenResponse = await httpm.HttpClient.getJson(tokenRequestUrl);
-    const oidcToken = tokenResponse.result.value;
-
+    // Get OIDC environment values
+    const oidcToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
+    const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];
 
     if (!oidcToken || !oidcRequestUrl) {
       throw new Error('Missing required environment variables for OIDC token request.');
     }
+
     core.info(`🌐 OIDC Request URL: ${oidcRequestUrl}`);
     core.info(`🪪 OIDC Token (first 20 chars): ${oidcToken.slice(0, 20)}...`);
-
     core.info(`Using token service endpoint: ${tokenServiceUrl}`);
 
-    // Exchange the OIDC token for the NuGet API key
-    const http = new httpm.HttpClient();
+    // Build the request body
+    const body = JSON.stringify({
+      username: username,
+      source: source,
+      tokenType: 'ApiKey'
+    });
 
-    // The exchange expects the token in the body or header
-    const body = JSON.stringify({ username: username, tokenType: 'ApiKey' });
-
+    // Prepare headers
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${oidcToken}`,
@@ -27602,24 +27599,29 @@ async function run() {
     core.info(`📤 Sending request to token service with body: ${body}`);
     core.info(`📨 Headers: ${JSON.stringify(headers, null, 2)}`);
 
+    const http = new httpm.HttpClient();
     const response = await http.post(tokenServiceUrl, body, headers);
+
     core.info(`📥 Token service response code: ${response.message.statusCode}`);
 
     if (response.message.statusCode !== 200) {
-      throw new Error(`Token exchange failed with status code ${response.message.statusCode}`);
+      const errorBody = await response.readBody();
+      throw new Error(`Token exchange failed (${response.message.statusCode}): ${errorBody}`);
     }
 
     const responseBody = await response.readBody();
     core.info(`📦 Token service response body: ${responseBody}`);
-    const data = JSON.parse(responseBody);
 
+    const data = JSON.parse(responseBody);
     if (!data.apiKey) {
-      throw new Error('Response did not contain apiKey');
+      throw new Error('Response did not contain "apiKey".');
     }
 
     const apiKey = data.apiKey;
+    core.setSecret(apiKey);
     core.setOutput('NUGET_API_KEY', apiKey);
-    core.info('Successfully exchanged OIDC token for NuGet API key.');
+    core.info('✅ Successfully exchanged OIDC token for NuGet API key.');
+
 
   } catch (error) {
     core.setFailed(error.message);
