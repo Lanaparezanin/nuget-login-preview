@@ -27570,16 +27570,28 @@ const username = core.getInput('user', { required: true });
     const audience = core.getInput('audience') || 'api.nuget.org';
 
     // Get OIDC environment values
-    const oidcToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
-    const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];
+    const oidcRequestToken = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
+const oidcRequestUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];
 
-    if (!oidcToken || !oidcRequestUrl) {
-      throw new Error('Missing required environment variables for OIDC token request.');
-    }
+if (!oidcRequestToken || !oidcRequestUrl) {
+  throw new Error('Missing GitHub OIDC request environment variables.');
+}
 
-    core.info(`🌐 OIDC Request URL: ${oidcRequestUrl}`);
-    core.info(`🪪 OIDC Token (first 20 chars): ${oidcToken.slice(0, 20)}...`);
-    core.info(`Using token service endpoint: ${tokenServiceUrl}`);
+const tokenUrl = `${oidcRequestUrl}&audience=${encodeURIComponent(audience)}`;
+core.info(`🌐 Requesting GitHub OIDC token from: ${tokenUrl}`);
+
+const http = new httpm.HttpClient();
+const tokenResponse = await http.getJson(tokenUrl, {
+  Authorization: `Bearer ${oidcRequestToken}`,
+});
+
+if (!tokenResponse.result || !tokenResponse.result.value) {
+  throw new Error('Failed to retrieve OIDC token from GitHub.');
+}
+
+const oidcToken = tokenResponse.result.value;
+core.info(`🪪 GitHub OIDC token (first 20 chars): ${oidcToken.slice(0, 20)}...`);
+
 
     // Build the request body
     const body = JSON.stringify({
@@ -27599,8 +27611,8 @@ const username = core.getInput('user', { required: true });
     core.info(`📤 Sending request to token service with body: ${body}`);
     core.info(`📨 Headers: ${JSON.stringify(headers, null, 2)}`);
 
-    const http = new httpm.HttpClient();
-    const response = await http.post(tokenServiceUrl, body, headers);
+    const http1 = new httpm.HttpClient();
+    const response = await http1.post(tokenServiceUrl, body, headers);
 
     core.info(`📥 Token service response code: ${response.message.statusCode}`);
 
