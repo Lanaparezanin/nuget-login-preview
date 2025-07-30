@@ -31,7 +31,9 @@ async function run() {
 
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${oidcToken}`
+      'Authorization': `Bearer ${oidcToken}`,
+      'Content-Length': Buffer.byteLength(body).toString(),
+      'User-Agent': 'nuget/login-action'
     };
 
     core.info(`📤 Sending request to token service with body: ${body}`);
