@@ -17,7 +17,7 @@ async function run() {
     }
 
     const tokenUrl = `${oidcRequestUrl}&audience=${encodeURIComponent(audience)}`;
-    core.info(`🌐 Requesting GitHub OIDC token from: ${tokenUrl}`);
+    core.info(`Requesting GitHub OIDC token from: ${tokenUrl}`);
 
     const http = new httpm.HttpClient();
     const tokenResponse = await http.getJson(tokenUrl, {
@@ -29,7 +29,6 @@ async function run() {
     }
 
     const oidcToken = tokenResponse.result.value;
-    core.info(`🪪 GitHub OIDC token (first 20 chars): ${oidcToken.slice(0, 20)}...`);
 
     // Build the request body
     const body = JSON.stringify({
@@ -45,13 +44,8 @@ async function run() {
       'User-Agent': 'nuget/login-action'
     };
 
-    core.info(`📤 Sending request to token service with body: ${body}`);
-    core.info(`📨 Headers: ${JSON.stringify(headers, null, 2)}`);
-
     const tokenServiceHttpClient = new httpm.HttpClient();
     const response = await tokenServiceHttpClient.post(tokenServiceUrl, body, headers);
-
-    core.info(`📥 Token service response code: ${response.message.statusCode}`);
 
     if (response.message.statusCode !== 200) {
       const errorBody = await response.readBody();
@@ -59,7 +53,6 @@ async function run() {
     }
 
     const responseBody = await response.readBody();
-    core.info(`📦 Token service response body: ${responseBody}`);
 
     const data = JSON.parse(responseBody);
     if (!data.apiKey) {
@@ -69,7 +62,7 @@ async function run() {
     const apiKey = data.apiKey;
     core.setSecret(apiKey);
     core.setOutput('NUGET_API_KEY', apiKey);
-    core.info('✅ Successfully exchanged OIDC token for NuGet API key.');
+    core.info('Successfully exchanged OIDC token for NuGet API key.');
 
 
   } catch (error) {
