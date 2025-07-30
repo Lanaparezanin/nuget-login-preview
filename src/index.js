@@ -21,7 +21,7 @@ async function run() {
 
     core.setSecret(oidcToken.value);
 
-    const response = await fetch(tokenServiceUrl, {
+    /*const response = await fetch(tokenServiceUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${oidcToken}`,
@@ -32,6 +32,11 @@ async function run() {
         username: username,
         tokenType: 'ApiKey'
       })
+    });*/
+
+    const body = JSON.stringify({
+      username: username,
+      tokenType: 'ApiKey'
     });
 
     // Exchange OIDC token for NuGet API key
