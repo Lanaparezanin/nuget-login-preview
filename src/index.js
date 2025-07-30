@@ -38,19 +38,18 @@ async function run() {
       tokenType: 'ApiKey'
     });
 
-        // Prepare headers
+    // Prepare headers
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${oidcToken}`,
-      'Content-Length': Buffer.byteLength(body).toString(),
       'User-Agent': 'nuget/login-action'
     };
 
     core.info(`📤 Sending request to token service with body: ${body}`);
     core.info(`📨 Headers: ${JSON.stringify(headers, null, 2)}`);
 
-    const http1 = new httpm.HttpClient();
-    const response = await http1.post(tokenServiceUrl, body, headers);
+    const tokenServiceHttpClient = new httpm.HttpClient();
+    const response = await tokenServiceHttpClient.post(tokenServiceUrl, body, headers);
 
     core.info(`📥 Token service response code: ${response.message.statusCode}`);
 
