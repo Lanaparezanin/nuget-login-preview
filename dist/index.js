@@ -27563,7 +27563,6 @@ const httpm = __nccwpck_require__(6255);
 async function run() {
   try {
     const username = core.getInput('user', { required: true });
-    const source = core.getInput('source', { required: true });
     const tokenServiceUrl = core.getInput('token-service-url', { required: true });
     const audience = core.getInput('audience') || 'api.nuget.org';
 
@@ -27592,7 +27591,6 @@ async function run() {
     // Build the request body
     const body = JSON.stringify({
       username: username,
-      source: source,
       tokenType: 'ApiKey'
     });
 
@@ -27630,6 +27628,7 @@ async function run() {
 }
 
 run();
+
 })();
 
 module.exports = __webpack_exports__;
